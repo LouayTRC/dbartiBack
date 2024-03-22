@@ -21,6 +21,13 @@ def addCategory(request):
     else:
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
 
+def getCategorys(request): 
+    if request.method == 'GET':
+        categories = Category.objects.all()
+        data = [{'id': str(category.id), 'name': category.name} for category in categories]
+        return JsonResponse(data, safe=False,status=200)
+    else:
+        return JsonResponse({'error': 'Only GET method is allowed'}, status=405)
 
 
 
