@@ -7,7 +7,7 @@ class Category(Document):
     def __str__(self):
         return self.name
 
-class User(EmbeddedDocument):
+class User(Document):
     fullname = StringField(max_length=20)
     username = StringField(max_length=10)
     mail = StringField(max_length=20)
