@@ -1,5 +1,5 @@
 # models.py
-from mongoengine import Document,EmbeddedDocument, StringField,EmbeddedDocumentField
+from mongoengine import Document, StringField,IntField,DateField,ReferenceField,ListField,ObjectIdField
 
 class Category(Document):
     name = StringField(max_length=100)
@@ -19,9 +19,31 @@ class User(Document):
 
 
 class Admin(Document):
-    user = EmbeddedDocumentField(User)
+    user = ReferenceField(User)
 
 
     def __str__(self):
         return "Admin(user={self.user})"
 
+class Comment(Document):
+    user = ReferenceField(User)
+    description = StringField(max_length=100)
+    date = DateField()
+    replies = ListField(ReferenceField('self'))
+
+    def __str__(self):
+        return "Comment(description='{self.description}', user={self.user}, date={self.date})"
+
+
+class Post(Document):
+    _id= ObjectIdField(primary_key=True)
+    title = StringField(max_length=20)
+    description = StringField(max_length=20)
+    nb_likes = IntField()
+    comments = ListField(ReferenceField(Comment))
+    pic = StringField(max_length=20)
+    user = ReferenceField(User)
+    date = DateField()
+
+    def __str__(self):
+        return "Post(_id='{self._id}', title='{self.title}', description='{self.description}', likes={self.nb_likes}, pic='{self.pic}', user={self.user}, date='{self.date}')"
