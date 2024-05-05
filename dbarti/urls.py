@@ -21,4 +21,6 @@ urlpatterns = [
     path('category/', include('myapp.urls.categoryUrls')),
     path('post/', include('myapp.urls.postUrls')),
     path('user/', include('myapp.urls.userUrls')),
+    path('recipe/', include('myapp.urls.recipeUrls')),
+    path('ingredients/', include('myapp.urls.ingredientUrls')),
 ]
