@@ -22,5 +22,7 @@ urlpatterns = [
     path('post/', include('myapp.urls.postUrls')),
     path('user/', include('myapp.urls.userUrls')),
     path('recipe/', include('myapp.urls.recipeUrls')),
-    path('ingredients/', include('myapp.urls.ingredientsUrls')),
+    path('ingredient/', include('myapp.urls.ingredientsUrls')),
+    path('chatbot/', include('chatbot.urls.chatbotUrls'), name='chatbot'),
+    path('favourites/', include('myapp.urls.favouritesUrls')),
 ]

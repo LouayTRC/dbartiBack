@@ -11,7 +11,8 @@ def addIngredient(request):
         if name:
             try:
                 ingredient = Ingredient.objects.create(name=name)
-                return JsonResponse({'message': 'Ingredient created successfully'}, status=201)
+                ingredientO = {'name': ingredient.name}
+                return JsonResponse(ingredientO,safe=False, status=201)
             except Exception as e:
                 return JsonResponse({'error': str(e)}, status=500)
         else:
@@ -23,13 +24,13 @@ def addIngredient(request):
 def getAllIngredients(request):
     if request.method == 'GET':
         ingredients = Ingredient.objects.all()
-        ingredient_list = [{'name': ingredient.name} for ingredient in ingredients]
-        return JsonResponse({'ingredients': ingredient_list}, status=200)
+        ingredient_list = [{'id':str(ingredient.id),'name': ingredient.name} for ingredient in ingredients]
+        return JsonResponse(ingredient_list,safe=False, status=200)
     else:
         return JsonResponse({'error': 'Only GET method is allowed'}, status=405)
 
 
-def updateIngredientById(request, ingredient_id):
+def updateIngredient(request, ingredient_id):
     if request.method == 'PUT':
         try:
             ingredient = Ingredient.objects.get(pk=ingredient_id)
@@ -50,7 +51,7 @@ def updateIngredientById(request, ingredient_id):
         return JsonResponse({'error': 'Only PUT method is allowed'}, status=405)
 
 
-def deleteIngredientById(request, ingredient_id):
+def deleteIngredient(request, ingredient_id):
     if request.method == 'DELETE':
         try:
             ingredient = Ingredient.objects.get(pk=ingredient_id)

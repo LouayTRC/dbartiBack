@@ -1,15 +1,16 @@
 import bcrypt
 from django.http import JsonResponse
 import json
-from ..models import User,Admin
+
+from myapp.models import User,Admin
 import jwt
 
 def register(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         username = data.get('username') 
-        fullname = data.get('username') 
-        password = data.get('username') 
+        fullname = data.get('fullname') 
+        password = data.get('password') 
         mail = data.get('mail')
         if username and fullname and mail and password:
             try:
@@ -21,7 +22,7 @@ def register(request):
                 user.role='USER'
                 print('u',user)
                 user.save()
-                return JsonResponse({'message': 'User registered successfully'},user, status=201)
+                return JsonResponse({'message': 'User registered successfully'}, status=201)
             except Exception as e:
                 print('Error:', e)
                 return JsonResponse({'error': 'Failed to register'}, status=500)
@@ -40,15 +41,21 @@ def login(request):
         password = data.get('password')  # Assuming the key for the password is 'password'
         if username and password:
             try:
-                
                 user = User.objects.get(username=username)
-
+                user_res={
+                    'id':str(user.id),
+                    'username':user.username,
+                    'fullname':user.fullname,
+                    'password':user.password,
+                    'role':user.role,
+                    'pic':user.pic,
+                }
                 
                 if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
 
                     token = jwt.encode({'username': username}, secretKey , algorithm='HS256')
                    
-                    return JsonResponse({'token': token}, status=200)
+                    return JsonResponse({'token': token,'user':user_res}, status=200)
                 else:
                     return JsonResponse({'error': 'Invalid credentials'}, status=401)
             except User.DoesNotExist:
@@ -91,3 +98,30 @@ def login(request):
 #             return JsonResponse({'error': 'Missing info: name or password'}, status=400)
 #     else:
 #         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+def createAdmin(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username') 
+        fullname = data.get('fullname') 
+        password = data.get('password') 
+        mail = data.get('mail')
+        if username and fullname and mail and password:
+            try:
+                
+                hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+                user = User(**data)
+                user.password=hashed_password.decode('utf-8')
+                user.role='USER'
+                user.save()
+                admin=Admin(user)
+                admin.save()
+                return JsonResponse({'message': 'User registered successfully'}, status=201)
+            except Exception as e:
+                print('Error:', e)
+                return JsonResponse({'error': 'Failed to register'}, status=500)
+        else:
+            return JsonResponse({'error': 'Missing info: name or password'}, status=400)
+    else:
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
