@@ -9,17 +9,13 @@ def createFavorites(request, idU):
     except User.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
     
-    favorites = Favorites.objects.create(title=data.get('title'),user=user, recipes=[])
+    favorites = Favorites.objects.create(title=data.get('title'),user=user, recipes=[],pic=data.get('pic'))
 
     favorites_info={
         'id':str(favorites.id),
         'title':favorites.title,
-        'user':{
-                'id': str(favorites.user.id),
-                'fullname': favorites.user.fullname,
-                'username': favorites.user.username,
-                'mail': favorites.user.mail
-            },
+        'recipes':[],
+        'pic':favorites.pic
     }
     
     return JsonResponse({'message': 'Favorites created successfully','favourites':favorites_info})
@@ -42,6 +38,7 @@ def addRecipe(request, idF, idR):
         return JsonResponse({'error': 'Favorites or Recipe not found'}, status=404)
     
     favorites.recipes.append(recipe)
+    favorites.pic=favorites.recipes[0].pic
     favorites.save()
     
     return JsonResponse({'message': 'Recipe added to favorites successfully'})
@@ -104,12 +101,55 @@ def getFavorites(request, idU):
         favorites_list.append({
             'id': str(favorite.id),
             'title': favorite.title,
-            'user':{
-                'id': str(favorite.user.id),
-                'fullname': favorite.user.fullname,
-                'username': favorite.user.username,
-                'mail': favorite.user.mail
-            },
-            'recipes':recipe_list
+            'recipes':recipe_list,
+            'pic':favorite.pic
         })
-    return JsonResponse({'favorites': favorites_list})
+    return JsonResponse(favorites_list,safe=False)
+
+def getFavouritesById(request, idF):
+    if request.method == 'GET':
+        try:
+            favorite = Favorites.objects.get(id=idF)
+        except Favorites.DoesNotExist:
+            return JsonResponse({'error': 'Favorite not found'}, status=404)
+
+        recipe_list = []
+        for recipe in favorite.recipes:  # Assuming `recipes` is a related field (e.g., ManyToManyField)
+            ingredients_list = []
+            for ingredient in recipe.ingredients:  # Assuming `ingredients` is a related field
+                ingredients_list.append({
+                    'id': str(ingredient.id),
+                    'name': ingredient.name
+                })
+
+            try:
+                category = Category.objects.get(id=recipe.category)
+            except Category.DoesNotExist:
+                category = None
+
+            recipe_dict = {
+                'id': str(recipe.id),
+                'title': recipe.title,
+                'description': recipe.description,
+                'duration': recipe.duration,
+                'pic': recipe.pic,
+                'nbCalories': recipe.nbCalories,
+                'category': {
+                    'id': str(category.id),
+                    'name': category.name
+                },
+                'tuto': recipe.tuto,
+                'ingredients': ingredients_list
+            }
+            recipe_list.append(recipe_dict)
+
+        favorite_dict = {
+            'id': str(favorite.id),
+            'title': favorite.title,
+            'recipes': recipe_list,
+            'pic': favorite.pic
+        }
+
+        return JsonResponse(favorite_dict, safe=False)
+    else:
+        return JsonResponse({'error': 'Only GET method is allowed'}, status=405)

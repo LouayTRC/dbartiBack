@@ -65,8 +65,11 @@ def deleteCategory(request, categoryId):
         try:
             category = Category.objects.get(id=categoryId)
             category.delete()
-            recipes=Recipe.objects.get(category=categoryId)
-            recipes.delete()
+            recipes=Recipe.objects.all()
+            if(recipes):
+                for r in recipes:
+                    if(r.category==categoryId):
+                        r.delete()
             return JsonResponse({'message': 'Category deleted successfully'}, status=200)
         except Category.DoesNotExist:
             return JsonResponse({'error': 'Category does not exist'}, status=404)

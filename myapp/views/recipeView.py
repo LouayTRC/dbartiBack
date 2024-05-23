@@ -5,11 +5,7 @@ from django.http import JsonResponse
 from myapp.models import Ingredient, Recipe, User
 from myapp.models import Category
 
-def addRecipe(request,userId):
-    user = User.objects.get(id=userId)
-    if not user:
-        raise ValueError("User not found")
-
+def addRecipe(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         title = data.get('title')
@@ -20,9 +16,9 @@ def addRecipe(request,userId):
         category = data.get('category')
         tuto = data.get('tuto')
         ingredients=data.get('ingredients')
-        if title and description and duration and nbCalories and category and ingredients:
+        if title and description and duration and nbCalories and category :
             recipe = Recipe(title=title, description=description, duration=duration, pic=pic, nbCalories=nbCalories
-                , category=category, tuto=tuto,ingredients=ingredients,user=user)
+                , category=category, tuto=tuto,ingredients=ingredients)
             try:
                 recipe.save()
                 recipe_dict = {
@@ -34,8 +30,7 @@ def addRecipe(request,userId):
                     "nbCalories": str(recipe.nbCalories),
                     "category": recipe.category,
                     "tuto": recipe.tuto,
-                    "ingredients":ingredients,
-                    'user':user
+                    "ingredients":ingredients
                 }
                 return JsonResponse(recipe_dict,safe=False, status=201)
             except Category.DoesNotExist:
@@ -85,6 +80,43 @@ def getAllRecipes(request):
     else:
         return JsonResponse({'error': 'Only GET method is allowed'}, status=405)
 
+def getRecipeById(request, recipe_id):
+    if request.method == 'GET':
+        try:
+            recipe = Recipe.objects.get(id=recipe_id)
+        except Recipe.DoesNotExist:
+            return JsonResponse({'error': 'Recipe not found'}, status=404)
+
+        ingredients_list = []
+        for ingredient in recipe.ingredients:  # Assuming `ingredients` is a related field
+            ingredients_list.append({
+                'id': str(ingredient.id),
+                'name': ingredient.name
+            })
+
+        try:
+            category = Category.objects.get(id=recipe.category)
+        except Category.DoesNotExist:
+            category = None
+
+        recipe_dict = {
+            'id': str(recipe.id),
+            'title': recipe.title,
+            'description': recipe.description,
+            'duration': recipe.duration,
+            'pic': recipe.pic,
+            'nbCalories': recipe.nbCalories,
+            'category': {
+                'id': str(category.id) if category else None,
+                'name': category.name if category else 'Unknown'
+            },
+            'tuto': recipe.tuto,
+            'ingredients': ingredients_list
+        }
+
+        return JsonResponse(recipe_dict, safe=False, status=200)
+    else:
+        return JsonResponse({'error': 'Only GET method is allowed'}, status=405)
 
 
 def updateRecipe(request, recipe_id):

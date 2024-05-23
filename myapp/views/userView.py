@@ -12,9 +12,14 @@ def register(request):
         fullname = data.get('fullname') 
         password = data.get('password') 
         mail = data.get('mail')
-        if username and fullname and mail and password:
+        pic = data.get('pic')
+        if username and fullname and mail and password and pic:
             try:
-                
+                if User.objects(username=username).first():
+                    return JsonResponse({'error': 'Username already taken'}, status=400)
+                if User.objects(mail=mail).first():
+                    return JsonResponse({'error': 'Email already registered'}, status=400)
+            
                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
                 user = User(**data)
@@ -102,26 +107,41 @@ def login(request):
 def createAdmin(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        username = data.get('username') 
-        fullname = data.get('fullname') 
-        password = data.get('password') 
+        username = data.get('username')
+        fullname = data.get('fullname')
+        password = data.get('password')
         mail = data.get('mail')
+        
         if username and fullname and mail and password:
             try:
+                # Check if the username or email already exists
+                if User.objects(username=username).first():
+                    return JsonResponse({'error': 'Username already taken'}, status=400)
+                if User.objects(mail=mail).first():
+                    return JsonResponse({'error': 'Email already registered'}, status=400)
                 
+                # Hash the password
                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-                user = User(**data)
-                user.password=hashed_password.decode('utf-8')
-                user.role='USER'
+                # Create the user
+                user = User(
+                    username=username,
+                    mail=mail,
+                    password=hashed_password.decode('utf-8'),
+                    fullname=fullname,
+                    role='ADMIN'
+                )
                 user.save()
-                admin=Admin(user)
+                
+                # Create the admin
+                admin = Admin(user=user)
                 admin.save()
+                
                 return JsonResponse({'message': 'User registered successfully'}, status=201)
             except Exception as e:
                 print('Error:', e)
                 return JsonResponse({'error': 'Failed to register'}, status=500)
         else:
-            return JsonResponse({'error': 'Missing info: name or password'}, status=400)
+            return JsonResponse({'error': 'Missing info: username, fullname, email, or password'}, status=400)
     else:
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)

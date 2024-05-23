@@ -11,11 +11,11 @@ class Category(Document):
 
 class User(Document):
     fullname = StringField(max_length=20)
-    username = StringField(max_length=10)
-    mail = StringField(max_length=20)
+    username = StringField(max_length=10,unique=True)
+    mail = StringField(max_length=20,unique=True)
     password = StringField(max_length=100)
     role = StringField(max_length=10)
-    pic = StringField(max_length=100)
+    pic = StringField()
     def __str__(self):
         return "User(fullname='{self.fullname}', username='{self.username}', mail='{self.mail}'"
 
@@ -41,7 +41,7 @@ class Comment(Document):
 class Post(Document):
     title = StringField(max_length=20)
     description = StringField(max_length=20)
-    nb_likes = IntField()
+    nbLikes = IntField()
     comments = ListField(ReferenceField(Comment))
     pic = StringField(max_length=20)
     user = ReferenceField(User)
@@ -78,7 +78,7 @@ class Favorites(Document):
     title = StringField(max_length=255)
     user = ReferenceField(User)
     recipes = ListField(ReferenceField(Recipe))
-    
+    pic=StringField()
 
     def __str__(self):
         return self.title

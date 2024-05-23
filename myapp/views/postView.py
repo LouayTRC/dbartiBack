@@ -12,14 +12,14 @@ def addPost(request,id):
         pic = data.get('pic')
         
         try:
-            post = Post(title=title,description=description,pic=pic,nb_likes=0,comments=[],date=datetime.now(),user=id)
+            post = Post(title=title,description=description,pic=pic,nbLikes=0,comments=[],date=datetime.now(),user=id)
             post.save()
             post_info={
                     'id': str(post.id),
                     'title': post.title,
                     'description': post.description,
                     'pic': post.pic,
-                    'nb_likes': post.nb_likes,
+                    'nbLikes': post.nbLikes,
                     'comments': post.comments,
                     'date': post.date.isoformat(),
                     'user': {
@@ -80,7 +80,7 @@ def getAllPosts(request):
                     'title': post.title,
                     'description': post.description,
                     'pic': post.pic,
-                    'nb_likes': post.nb_likes,
+                    'nbLikes': post.nbLikes,
                     'comments': comment_list,
                     'date': post.date.isoformat(),
                     'user': {
@@ -90,7 +90,7 @@ def getAllPosts(request):
                         'mail': post.user.mail
                     }
                 })
-            return JsonResponse({'posts': post_list})
+            return JsonResponse(post_list,safe=False)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     else:
