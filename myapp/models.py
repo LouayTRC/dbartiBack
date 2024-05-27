@@ -52,8 +52,6 @@ class Post(Document):
     
 class Ingredient(Document):
     name = StringField(max_length=255)
-    quantity = StringField(max_length=100)
-    unit = StringField(max_length=50)
 
     def __str__(self):
         return self.name
@@ -72,8 +70,6 @@ class Recipe(Document):
         return self.title
 
 
-
-
 class Favorites(Document):
     title = StringField(max_length=255)
     user = ReferenceField(User)
@@ -82,3 +78,5 @@ class Favorites(Document):
 
     def __str__(self):
         return self.title
+    
+

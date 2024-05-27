@@ -26,7 +26,8 @@ def addPost(request,id):
                         'id': str(post.user.id),
                         'fullname': post.user.fullname,
                         'username': post.user.username,
-                        'mail': post.user.mail
+                        'mail': post.user.mail,
+                        'pic':post.user.pic
                     }
                 }
             return JsonResponse({'message': 'post created successfully','post':post_info}, status=201)
@@ -67,7 +68,8 @@ def getAllPosts(request):
                                 'id': str(comment.user.id),
                                 'fullname': comment.user.fullname,
                                 'username': comment.user.username,
-                                'mail': comment.user.mail
+                                'mail': comment.user.mail,
+                                'pic':post.user.pic
                             },
                         'date':comment.date.isoformat()
                     })
@@ -87,7 +89,8 @@ def getAllPosts(request):
                         'id': str(post.user.id),
                         'fullname': post.user.fullname,
                         'username': post.user.username,
-                        'mail': post.user.mail
+                        'mail': post.user.mail,
+                        'pic':post.user.pic
                     }
                 })
             return JsonResponse(post_list,safe=False)
@@ -118,7 +121,8 @@ def create_comment(request, idP, idU):
                 'id': str(comment.user.id),
                 'fullname': comment.user.fullname,
                 'username': comment.user.username,
-                'mail': comment.user.mail
+                'mail': comment.user.mail,
+                'pic':post.user.pic
             },
         'date':comment.date.isoformat()
     }
@@ -141,3 +145,12 @@ def delete_comment(request, idP, idC):
     
     return JsonResponse({'message': 'Comment deleted successfully'})
 
+def likePost(request,idP):
+    try:
+        post = Post.objects.get(id=idP)
+        post.nbLikes+=1
+        post.save()
+        return JsonResponse({'message': 'Post Liked Successfully'})
+    except (Post.DoesNotExist):
+        return JsonResponse({'error': 'Post not found'}, status=404)
+    

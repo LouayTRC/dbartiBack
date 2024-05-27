@@ -7,5 +7,6 @@ urlpatterns = [
     path('delete/<str:idP>/<str:idC>/',postView.delete_comment, name='commentPost'),
     path('delete/<str:id>/',postView.deletePost, name='deletePost'),
     path('comment/<str:idP>/<str:idU>/',postView.create_comment, name='commentPost'),
+    path('like/<str:idP>/',postView.likePost, name='likePost'),
 
 ]

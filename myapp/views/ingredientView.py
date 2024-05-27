@@ -11,7 +11,7 @@ def addIngredient(request):
         if name:
             try:
                 ingredient = Ingredient.objects.create(name=name)
-                ingredientO = {'name': ingredient.name}
+                ingredientO = {'id':str(ingredient.id),'name': ingredient.name}
                 return JsonResponse(ingredientO,safe=False, status=201)
             except Exception as e:
                 return JsonResponse({'error': str(e)}, status=500)

@@ -75,13 +75,7 @@ def getFavorites(request, idU):
         recipe_list = []
         for recipe in favorite.recipes:
             
-            
-            ingredients_list = []
-            for ingredient in recipe.ingredients:
-                ingredients_list.append({
-                    'id': str(ingredient.id),
-                    'name': ingredient.name
-                })
+        
             cat=Category.objects.get(id=recipe.category)
             recipe_dict = {
                 'id': str(recipe.id),
@@ -94,8 +88,7 @@ def getFavorites(request, idU):
                     'id':str(cat.id),
                     'name':cat.name
                 },
-                'tuto': recipe.tuto,
-                'ingredients': ingredients_list
+                'tuto': recipe.tuto
             }
             recipe_list.append(recipe_dict)
         favorites_list.append({
@@ -115,12 +108,6 @@ def getFavouritesById(request, idF):
 
         recipe_list = []
         for recipe in favorite.recipes:  # Assuming `recipes` is a related field (e.g., ManyToManyField)
-            ingredients_list = []
-            for ingredient in recipe.ingredients:  # Assuming `ingredients` is a related field
-                ingredients_list.append({
-                    'id': str(ingredient.id),
-                    'name': ingredient.name
-                })
 
             try:
                 category = Category.objects.get(id=recipe.category)
@@ -139,7 +126,6 @@ def getFavouritesById(request, idF):
                     'name': category.name
                 },
                 'tuto': recipe.tuto,
-                'ingredients': ingredients_list
             }
             recipe_list.append(recipe_dict)
 

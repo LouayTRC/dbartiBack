@@ -51,14 +51,7 @@ def getAllRecipes(request):
 
         recipe_list = []
         for recipe in recipes:
-            
-            
-            ingredients_list = []
-            for ingredient in recipe.ingredients:
-                ingredients_list.append({
-                    'id': str(ingredient.id),
-                    'name': ingredient.name
-                })
+        
             cat=Category.objects.get(id=recipe.category)
             recipe_dict = {
                 'id': str(recipe.id),
@@ -71,8 +64,7 @@ def getAllRecipes(request):
                     'id':str(recipe.category),
                     'name':cat.name
                 },
-                'tuto': recipe.tuto,
-                'ingredients': ingredients_list
+                'tuto': recipe.tuto
             }
             recipe_list.append(recipe_dict)
 
@@ -87,13 +79,6 @@ def getRecipeById(request, recipe_id):
         except Recipe.DoesNotExist:
             return JsonResponse({'error': 'Recipe not found'}, status=404)
 
-        ingredients_list = []
-        for ingredient in recipe.ingredients:  # Assuming `ingredients` is a related field
-            ingredients_list.append({
-                'id': str(ingredient.id),
-                'name': ingredient.name
-            })
-
         try:
             category = Category.objects.get(id=recipe.category)
         except Category.DoesNotExist:
@@ -107,11 +92,10 @@ def getRecipeById(request, recipe_id):
             'pic': recipe.pic,
             'nbCalories': recipe.nbCalories,
             'category': {
-                'id': str(category.id) if category else None,
-                'name': category.name if category else 'Unknown'
+                'id': str(category.id),
+                'name': category.name
             },
-            'tuto': recipe.tuto,
-            'ingredients': ingredients_list
+            'tuto': recipe.tuto
         }
 
         return JsonResponse(recipe_dict, safe=False, status=200)
